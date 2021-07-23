@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestAPI data</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <style>
+        * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    color: #333;
+    background-color: #eee;
+    background-image: url("countries1.jpg");
+  }
+  h1 {
+    text-align: center;
+  }
+  #main-container {
+    width: 502px;
+    margin: 30px auto;
+    padding: 0;
+  }
+  #flag-container {
+    height: 252px;
+    background-color: #fff;
+    border: 1px solid #333;
+  }
+  #flag-container img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  #info-container select {
+    display: block;
+    margin: 20px auto;
+    padding: 5px;
+    min-width: 100%;
+    color:black;
+    font-size: 15px;
+    font-weight: 900;
+    text-align-last: center;
+  }
+  #info-container p {
+    padding: 0 10px;
+    font-weight: 600;
+    color: black;
+  }
+  #info-container p span {
+    font-weight: normal;
+    color:black
+  }
+  
+  @media (max-width: 768px) {
+    body { font-size: 12px; }
+    #main-container { width: 342px; }  
+    #flag-container { height: 172px; }  
+    #info-container select { font-size: 12px; font-weight: 600; }
+  }
+    </style>
+</head>
+<body>
+
+    <h1>Rest Countries API</h1>
+    <div id = "main-container">
+        <div id ="flag-container">
+            <img src = "" alt="">
+            </div>
+            <div id="info-container">
+                <select id ="countries">
+                </select>
+                <p>Capital : <span id ="capital"></span></p>
+                <p>Dialing code : <span id ="dialing-code"></span></p>
+                <p>Population:<span id="population"></span></p>
+                <p>Currencies:<span id="currencies"></span></p>
+                <p>Region:<span id="region"></span></p>
+                <p>SubRegion:<span id="subregion"></span></p>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        
+//Global variables
+
+let countries; //will contain the fetched api data
+const CountriesList = document.getElementById("countries");
+//add event listeners;
+//change is selected option will display the CountrybyAlpha3Code data.
+
+CountriesList.addEventListener("change",function(event){
+    //console.log(event.target.value);
+    displayCountryInfo(event.target.value);//CountrybyAlpha3Code data.
+})
+
+
+async function getJson(){
+    try{
+
+    let resp = await fetch('https://restcountries.eu/rest/v2/all')
+    let data = await resp.json();
+    //console.log(data);
+    Initialize(data);
+    }catch(error){
+        console.log(error);
+    }
+}
+
+getJson();
+
+function Initialize(countriesData){
+  countries = countriesData;
+  console.log(countries);
+  let options = "";
+  /*for(let i=0;i<countries.length;i++){
+
+    options += `<option value ="${countries[i].alpha3Code}">${countries[i].name}</option>`
+  }*/
+  countries.forEach(country => {
+    options += `<option value ="${country.alpha3Code}">${country.name}</option>`
+  });
+  CountriesList.innerHTML= options;
+  displayCountryInfo("ALA")//passing the alpha3Code argument
+}
+
+function displayCountryInfo(CountrybyAlpha3Code){
+    const countryData = countries.find(country => country.alpha3Code === CountrybyAlpha3Code);
+    //console.log(countryData);
+
+    document.querySelector("#flag-container img").src = countryData.flag;
+    document.querySelector("#flag-container img").alt = `Flag of ${countryData.name}`
+    document.getElementById("capital").innerHTML = countryData.capital;
+    document.getElementById("dialing-code").innerHTML = `+${countryData.callingCodes[0]}`;
+    document.getElementById("population").innerHTML = countryData.population.toLocaleString("en-US");//ex:28,765(diffrentiate with ,)
+    document.getElementById("currencies").innerHTML = countryData.currencies.filter(c => c.name).map(c => `${c.name} (${c.code})`).join(",");
+    document.getElementById("region").innerHTML = countryData.region;
+    document.getElementById("subregion").innerHTML = countryData.subregion;
+   
+}
+
+
+    </script>
+
+</body>
+</html>
+
+
+
+<!----------------
+
+     <div class="container">
+        <div class = "row" id="row">
+            <div class = "col-4">
+                <div class = "card">
+                    <div class="card-img-top">
+                        <img src = "" alt="">
+                    </div>
+                    <div class="card-body">
+                        <h4 class = "card-title"></h4>
+                        <p class="card-text"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+-->
